@@ -8,6 +8,14 @@ import sharp from 'sharp'
 
 import { Users } from './collections/Users'
 import { Media } from './collections/Media'
+import Hero from './collections/blocks/Hero'
+import Feature from './collections/blocks/Feature'
+import Testimonial from './collections/blocks/Testimonial'
+import CTA from './collections/blocks/CTA'
+import Pages from './collections/Pages'
+import Contacts from './collections/Contact'
+
+export const blocks = [Hero, Feature, Testimonial, CTA]
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -19,7 +27,8 @@ export default buildConfig({
       baseDir: path.resolve(dirname),
     },
   },
-  collections: [Users, Media],
+  blocks,
+  collections: [Users, Media, Pages, Contacts],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {

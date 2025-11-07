@@ -159,7 +159,7 @@ const ContactPage = () => {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full rounded-xl bg-gradient-to-r from-indigo-500 to-violet-500 py-3 px-6 font-semibold text-white shadow-sm transition-all duration-200 ease-in-out hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-70"
+            className="w-full rounded-xl bg-linear-to-r from-indigo-500 to-violet-500 py-3 px-6 font-semibold text-white shadow-sm transition-all duration-200 ease-in-out hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-70"
           >
             {isSubmitting ? 'Sending...' : 'Send Message'}
           </button>

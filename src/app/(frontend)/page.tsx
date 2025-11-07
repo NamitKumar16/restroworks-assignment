@@ -1,4 +1,7 @@
+import CTABlock from '@/components/blocks/CTABlock'
+import FeatureBlock from '@/components/blocks/FeatureBlock'
 import HeroBlock from '@/components/blocks/HeroBlock'
+import TestimonialBlock from '@/components/blocks/TestimonialBlock'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 
@@ -17,14 +20,31 @@ type HeroLayoutBlock = {
 
 type FeatureLayoutBlock = {
   blockType: 'feature'
+  title?: string
+  description?: string
+  icon?: {
+    url?: string
+  }
+  linkLabel?: string
+  linkUrl?: string
 }
 
 type TestimonialLayoutBlock = {
   blockType: 'testimonial'
+  quote?: string
+  authorName?: string
+  authorRole?: string
+  authorImage?: {
+    url?: string
+  }
 }
 
 type CtaLayoutBlock = {
   blockType: 'cta'
+  heading?: string
+  subheading?: string
+  buttonText?: string
+  buttonLink?: string
 }
 
 type UnknownLayoutBlock = {
@@ -70,33 +90,17 @@ const renderBlock = (block: PageBlock, index: number) => {
       return <HeroBlock key={`${block.blockType}-${index}`} block={block as HeroLayoutBlock} />
     case 'feature':
       return (
-        <section key={`${block.blockType}-${index}`} className={`${baseClasses} text-gray-900`}>
-          <h2 className="text-xl font-semibold">Feature block</h2>
-          <p className="mt-2 text-gray-600">Feature highlights will be showcased here.</p>
-        </section>
+        <FeatureBlock key={`${block.blockType}-${index}`} block={block as FeatureLayoutBlock} />
       )
     case 'testimonial':
       return (
-        <section
+        <TestimonialBlock
           key={`${block.blockType}-${index}`}
-          className={`${baseClasses} bg-linear-to-r from-indigo-50 to-violet-50 text-gray-900`}
-        >
-          <h2 className="text-xl font-semibold">Testimonial block</h2>
-          <p className="mt-2 text-gray-600">
-            Client testimonials will be displayed in this section.
-          </p>
-        </section>
+          block={block as TestimonialLayoutBlock}
+        />
       )
     case 'cta':
-      return (
-        <section
-          key={`${block.blockType}-${index}`}
-          className={`${baseClasses} bg-linear-to-r from-indigo-500 to-violet-500 text-white shadow-md`}
-        >
-          <h2 className="text-xl font-semibold">CTA block</h2>
-          <p className="mt-2 opacity-90">A compelling call-to-action will appear here.</p>
-        </section>
-      )
+      return <CTABlock key={`${block.blockType}-${index}`} block={block as CtaLayoutBlock} />
     default:
       return (
         <section key={`unknown-${index}`} className={`${baseClasses} text-gray-900`}>
@@ -112,15 +116,15 @@ export default async function HomePage() {
   const blocks = page?.layout ?? []
 
   return (
-    <main className="mx-auto mt-12 max-w-4xl px-6 pb-16">
-      <header className="text-center">
-        <h1 className="text-3xl font-semibold text-gray-900">Welcome to Restroworks</h1>
-        <p className="mt-3 text-lg text-gray-600">
+    <main className="mx-auto w-full max-w-6xl px-6 py-16 md:py-24">
+      <header className="mb-16 text-center">
+        <h1 className="text-4xl font-semibold text-gray-900 md:text-5xl">Welcome to Restroworks</h1>
+        <p className="mt-4 text-lg text-gray-600 md:text-xl">
           Crafting delightful restaurant experiences with modern technology.
         </p>
       </header>
 
-      <div className="mt-10 grid gap-6">
+      <div className="flex flex-col gap-16 md:gap-24">
         {blocks.length > 0 ? (
           blocks.map((block, index) => renderBlock(block, index))
         ) : (

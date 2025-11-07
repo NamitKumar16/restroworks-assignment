@@ -1,3 +1,4 @@
+import Header from '@/components/Header'
 import '../globals.css'
 
 export const metadata = {
@@ -5,13 +6,12 @@ export const metadata = {
   title: 'Restroworks',
 }
 
-export default async function RootLayout(props: { children: React.ReactNode }) {
-  const { children } = props
-
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body>
-        <main>{children}</main>
+      <body className="min-h-screen bg-linear-to-b from-gray-50 via-white to-gray-100 text-gray-900 antialiased">
+        <Header />
+        <main className="pt-20">{children}</main>
       </body>
     </html>
   )

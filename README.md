@@ -1,67 +1,178 @@
-# Payload Blank Template
+# 🧾 Restroworks – CMS-Powered Multi-Language Website
 
-This template comes configured with the bare minimum to get started on anything you need.
+A **Next.js 15 + PayloadCMS** project built for the Restroworks assignment.  
+This prototype demonstrates a CMS-driven, SEO-optimized, responsive, and multilingual website.
 
-## Quick start
+---
 
-This template can be deployed directly from our Cloud hosting and it will setup MongoDB and cloud S3 object storage for media.
+## 🚀 Tech Stack
 
-## Quick Start - local setup
+| Layer | Technology |
+|:--|:--|
+| **Frontend** | Next.js 15 (App Router) |
+| **Backend / CMS** | PayloadCMS |
+| **Database** | MongoDB (via MongoDB Atlas) |
+| **Styling** | Tailwind CSS |
+| **Deployment** | Render (Fullstack Deployment) |
 
-To spin up this template locally, follow these steps:
+---
 
-### Clone
+## 🌍 Live Demo
 
-After you click the `Deploy` button above, you'll want to have standalone copy of this repo on your machine. If you've already cloned this repo, skip to [Development](#development).
+🔗 **Frontend + CMS:**  
+[https://restroworks-payload.onrender.com](https://restroworks-payload.onrender.com)
 
-### Development
+---
 
-1. First [clone the repo](#clone) if you have not done so already
-2. `cd my-project && cp .env.example .env` to copy the example environment variables. You'll need to add the `MONGODB_URI` from your Cloud project to your `.env` if you want to use S3 storage and the MongoDB database that was created for you.
+## 📄 Project Overview
 
-3. `pnpm install && pnpm dev` to install dependencies and start the dev server
-4. open `http://localhost:3000` to open the app in your browser
+### ✅ Implemented Features
 
-That's it! Changes made in `./src` will be reflected in your app. Follow the on-screen instructions to login and create your first admin user. Then check out [Production](#production) once you're ready to build and serve your app, and [Deployment](#deployment) when you're ready to go live.
+- Fully **CMS-driven content** (Hero, Feature, Testimonial, and CTA blocks)
+- **English and Hindi** localization
+- **Dynamic content fetch** using Payload’s REST API
+- **Responsive design** built with TailwindCSS
+- **SEO metadata** (titles, descriptions, Open Graph, robots.txt)
+- **Shared Header and Footer**
+- **Contact form** storing submissions in PayloadCMS
+- **Accessible and semantic HTML**
+- **Image optimization** using Next.js `<Image>` component
 
-#### Docker (Optional)
+---
 
-If you prefer to use Docker for local development instead of a local MongoDB instance, the provided docker-compose.yml file can be used.
+### 🌟 Extra Credit
 
-To do so, follow these steps:
+- Live multilingual preview (via `/en` and `/hi` routes)
+- Smooth animations on scroll
+- Deployed live demo on Render
 
-- Modify the `MONGODB_URI` in your `.env` file to `mongodb://127.0.0.1/<dbname>`
-- Modify the `docker-compose.yml` file's `MONGODB_URI` to match the above `<dbname>`
-- Run `docker-compose up` to start the database, optionally pass `-d` to run in the background.
+---
 
-## How it works
-
-The Payload config is tailored specifically to the needs of most websites. It is pre-configured in the following ways:
+## 🧱 CMS Modeling
 
 ### Collections
 
-See the [Collections](https://payloadcms.com/docs/configuration/collections) docs for details on how to extend this functionality.
+| Collection | Purpose |
+|:--|:--|
+| `Pages` | Stores modular page layouts (Hero, Feature, Testimonial, CTA) |
+| `Media` | Manages uploaded images |
+| `Users` | Admin authentication |
+| `Contacts` | Stores contact form submissions |
 
-- #### Users (Authentication)
+### Blocks
 
-  Users are auth-enabled collections that have access to the admin panel.
+- **Hero Block:** Heading, Subheading, Background Image, CTA  
+- **Feature Block:** Title, Description, Icon, Optional Link  
+- **Testimonial Block:** Quote, Author Info, Image  
+- **CTA Block:** Heading, Description, Button
 
-  For additional help, see the official [Auth Example](https://github.com/payloadcms/payload/tree/main/examples/auth) or the [Authentication](https://payloadcms.com/docs/authentication/overview#authentication-overview) docs.
+---
 
-- #### Media
+## ⚙️ Setup Instructions
 
-  This is the uploads enabled collection. It features pre-configured sizes, focal point and manual resizing to help you manage your pictures.
+### 1️⃣ Clone the Repository
 
-### Docker
+```bash
+git clone https://github.com/NamitKumar16/restroworks-assignment.git
+cd restroworks-assignment
+```
 
-Alternatively, you can use [Docker](https://www.docker.com) to spin up this template locally. To do so, follow these steps:
+### 2️⃣ Install Dependencies
 
-1. Follow [steps 1 and 2 from above](#development), the docker-compose file will automatically use the `.env` file in your project root
-1. Next run `docker-compose up`
-1. Follow [steps 4 and 5 from above](#development) to login and create your first admin user
+```bash
+npm install
+```
 
-That's it! The Docker instance will help you get up and running quickly while also standardizing the development environment across your teams.
+### 3️⃣ Create `.env` file
 
-## Questions
+```env
+DATABASE_URI=mongodb+srv://<your_mongo_uri>
+PAYLOAD_SECRET=<any_random_secret>
+PAYLOAD_URL=http://localhost:3000
+```
 
-If you have any issues or questions, reach out to us on [Discord](https://discord.com/invite/payload) or start a [GitHub discussion](https://github.com/payloadcms/payload/discussions).
+### 4️⃣ Run Locally
+
+```bash
+npm run dev
+```
+
+Then open: **http://localhost:3000/admin**
+
+---
+
+## 📦 Deployment (Render)
+
+1. Push the project to a **public GitHub repo**
+2. Create a **Web Service** on [Render](https://render.com/)
+3. Add Environment Variables:
+   - `DATABASE_URI`
+   - `PAYLOAD_SECRET`
+   - `PAYLOAD_URL=https://<your_render_domain>`
+4. Build Command:
+   ```bash
+   npm install && npm run build
+   ```
+5. Start Command:
+   ```bash
+   npm run start
+   ```
+6. Wait for the deployment to finish and open your live link.
+
+---
+
+## 🧩 CMS Editing Guide
+
+### To edit content:
+
+1. Go to `/admin`
+2. Use id admin@admin.com and password admin123
+3. Open **Pages → home-page**
+4. Add or reorder blocks (Hero, Feature, Testimonial, CTA)
+5. Add translations for Hindi (`hi`)
+6. Save and publish — changes reflect instantly
+
+---
+
+## 🔍 SEO Configuration
+
+- Metadata handled by **Next.js Metadata API**
+- Per-page SEO fields from Payload:
+  - `seoTitle`
+  - `seoDescription`
+- Automatic generation of:
+  - `robots.txt`
+  - `sitemap.xml`
+
+---
+
+## ⚡ Performance & Optimization
+
+- Image optimization using Next.js `<Image>`  
+- Lazy loading and caching via Next.js and Render CDN  
+- SEO-friendly routes (`/en`, `/hi`)  
+- Lighthouse score improvements with preload and minified JS
+
+---
+
+## 👨‍💻 Author
+
+**Namit Kumar**  
+React Native & Frontend Developer  
+[LinkedIn Profile](https://www.linkedin.com/in/namitkumar16)
+
+---
+
+## ✅ Submission Includes
+
+- Frontend (Next.js) + Backend (PayloadCMS)
+- MongoDB integration
+- Live deployment link
+- Complete README with setup, CMS modeling & SEO details
+
+---
+
+### 🏁 Summary
+
+This project demonstrates a **production-ready fullstack architecture** integrating **Next.js App Router** with **PayloadCMS** —  
+fully modular, multilingual, responsive, and SEO-optimized.

@@ -18,20 +18,10 @@ type FeatureBlockProps = {
 
 const withLocalePrefix = (locale: string | undefined, href?: string) => {
   if (!href) return undefined
-  if (href.startsWith('http://') || href.startsWith('https://') || href.startsWith('mailto:') || href.startsWith('tel:'))
-    return href
+  if (href.startsWith('http') || href.startsWith('mailto:') || href.startsWith('tel:')) return href
 
   const normalized = href.startsWith('/') ? href : `/${href}`
-  if (!locale) return normalized
-
-  const sanitizedLocale = locale.trim()
-  if (!sanitizedLocale) return normalized
-
-  if (normalized === `/${sanitizedLocale}` || normalized.startsWith(`/${sanitizedLocale}/`)) {
-    return normalized
-  }
-
-  return `/${sanitizedLocale}${normalized}`
+  return locale ? `/${locale}${normalized}` : normalized
 }
 
 const FeatureBlock: FC<FeatureBlockProps> = ({ block, locale }) => {
@@ -39,43 +29,38 @@ const FeatureBlock: FC<FeatureBlockProps> = ({ block, locale }) => {
   const showLink = Boolean(block.linkLabel && resolvedLink)
 
   return (
-    <section className="w-full bg-[#f9fafb] py-16">
-      <div className="mx-auto grid w-full max-w-6xl grid-cols-1 gap-8 px-6 sm:grid-cols-2 xl:grid-cols-3">
-        <article className="group relative overflow-hidden rounded-2xl border border-gray-200 bg-white p-8 shadow-md transition-all duration-200 ease-in-out hover:-translate-y-1 hover:shadow-lg">
-          <div className="absolute inset-0 bg-linear-to-br from-indigo-500/5 via-transparent to-violet-500/10 opacity-0 transition-opacity duration-200 group-hover:opacity-100" />
+    <article className="group relative overflow-hidden rounded-2xl border border-gray-200 bg-white p-8 shadow-md transition-all duration-200 ease-in-out hover:-translate-y-1 hover:shadow-lg">
+      <div className="absolute inset-0 bg-linear-to-br from-indigo-500/5 via-transparent to-violet-500/10 opacity-0 transition-opacity duration-200 group-hover:opacity-100" />
 
-          <div className="relative z-10 flex h-full flex-col gap-4">
-            {block.icon?.url && (
-              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-linear-to-br from-indigo-500 to-violet-500 p-3 shadow-sm">
-                <Image
-                  src={block.icon.url}
-                  alt={block.title ?? 'Feature icon'}
-                  width={56}
-                  height={56}
-                  className="h-full w-full object-cover"
-                />
-              </div>
-            )}
-
-            {block.title && <h3 className="text-2xl font-semibold text-gray-900">{block.title}</h3>}
-
-            {block.description && <p className="text-gray-600">{block.description}</p>}
-
-            {showLink && resolvedLink && (
-              <a
-                href={resolvedLink}
-                className="inline-flex w-fit items-center gap-2 rounded-xl bg-linear-to-r from-indigo-500 to-violet-500 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-all duration-200 ease-in-out hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-indigo-200 focus:ring-offset-2 focus:ring-offset-white"
-              >
-                {block.linkLabel}
-                <span aria-hidden className="text-white/80">
-                  →
-                </span>
-              </a>
-            )}
+      <div className="relative z-10 flex h-full flex-col gap-4">
+        {block.icon?.url && (
+          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-linear-to-br from-indigo-500 to-violet-500 p-3 shadow-sm">
+            <Image
+              src={block.icon.url}
+              alt={block.title ?? 'Feature icon'}
+              width={56}
+              height={56}
+              className="h-full w-full object-cover"
+            />
           </div>
-        </article>
+        )}
+
+        {block.title && <h3 className="text-2xl font-semibold text-gray-900">{block.title}</h3>}
+        {block.description && <p className="text-gray-600">{block.description}</p>}
+
+        {showLink && resolvedLink && (
+          <a
+            href={resolvedLink}
+            className="inline-flex w-fit items-center gap-2 rounded-xl bg-linear-to-r from-indigo-500 to-violet-500 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-all duration-200 ease-in-out hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-indigo-200 focus:ring-offset-2 focus:ring-offset-white"
+          >
+            {block.linkLabel}
+            <span aria-hidden className="text-white/80">
+              →
+            </span>
+          </a>
+        )}
       </div>
-    </section>
+    </article>
   )
 }
 

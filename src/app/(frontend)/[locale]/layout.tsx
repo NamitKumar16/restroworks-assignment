@@ -1,13 +1,15 @@
+import React from 'react'
 import Footer from '@/components/Footer'
 import Header from '@/components/Header'
 
 type LocaleLayoutProps = {
   children: React.ReactNode
-  params: { locale?: string }
+  params: Promise<{ locale?: string }>
 }
 
 export default function LocaleLayout({ children, params }: LocaleLayoutProps) {
-  const locale = params?.locale || 'en'
+  const resolvedParams = React.use(params)
+  const locale = resolvedParams?.locale || 'en'
 
   return (
     <div className="flex min-h-screen flex-col">

@@ -48,9 +48,7 @@ type CtaLayoutBlock = {
   buttonLink?: string
 }
 
-type UnknownLayoutBlock = {
-  blockType?: string
-}
+type UnknownLayoutBlock = { blockType?: string }
 
 type PageBlock =
   | HeroLayoutBlock
@@ -59,9 +57,7 @@ type PageBlock =
   | CtaLayoutBlock
   | UnknownLayoutBlock
 
-type PageDocument = {
-  layout?: PageBlock[]
-}
+type PageDocument = { layout?: PageBlock[] }
 
 type PayloadLocale = SupportedLocale | 'all'
 
@@ -70,55 +66,14 @@ const fetchHomePage = async (locale: PayloadLocale): Promise<PageDocument | null
     const payload = await getPayload({ config: configPromise })
     const result = await payload.find({
       collection: 'pages',
-      where: { slug: { equals: 'home' } },
+      where: { slug: { equals: 'home-page' } },
       locale,
     })
-
     return (result?.docs?.[0] as PageDocument | undefined) ?? null
   } catch (error) {
     console.error(`Error fetching home page for locale "${locale}":`, error)
     return null
   }
-}
-
-const renderBlock = (block: PageBlock, index: number, locale: SupportedLocale) => {
-  const key = `${block?.blockType ?? 'unknown'}-${index}`
-  const wrapperClasses =
-    'w-full opacity-0 translate-y-10 animate-restroworks-fade-up motion-reduce:translate-y-0 motion-reduce:opacity-100'
-  const animationDelay = { animationDelay: `${index * 120}ms` }
-
-  let content: React.ReactNode
-
-  switch (block?.blockType) {
-    case 'hero':
-      content = <HeroBlock block={block as HeroLayoutBlock} locale={locale} />
-      break
-    case 'feature':
-      content = <FeatureBlock block={block as FeatureLayoutBlock} locale={locale} />
-      break
-    case 'testimonial':
-      content = <TestimonialBlock block={block as TestimonialLayoutBlock} />
-      break
-    case 'cta':
-      content = <CTABlock block={block as CtaLayoutBlock} locale={locale} />
-      break
-    default:
-      content = (
-        <section className="w-full rounded-2xl bg-gray-100/80 p-10 text-center text-gray-700">
-          <h2 className="text-xl font-semibold text-gray-900">Unsupported block</h2>
-          <p className="mt-2 text-gray-600">
-            This block type is not yet handled. Please update the frontend to support it.
-          </p>
-        </section>
-      )
-      break
-  }
-
-  return (
-    <div key={key} className={wrapperClasses} style={animationDelay}>
-      {content}
-    </div>
-  )
 }
 
 export default async function HomePage({ params }: { params: { locale?: string } }) {
@@ -128,6 +83,76 @@ export default async function HomePage({ params }: { params: { locale?: string }
   const blocks = page?.layout ?? []
   const t = translations[locale]
 
+  // Group all consecutive feature blocks together
+  const groupedBlocks: (PageBlock | FeatureLayoutBlock[])[] = []
+  let tempFeatureGroup: FeatureLayoutBlock[] = []
+
+  for (const block of blocks) {
+    if (block.blockType === 'feature') {
+      tempFeatureGroup.push(block as FeatureLayoutBlock)
+    } else {
+      if (tempFeatureGroup.length > 0) {
+        groupedBlocks.push(tempFeatureGroup)
+        tempFeatureGroup = []
+      }
+      groupedBlocks.push(block)
+    }
+  }
+
+  if (tempFeatureGroup.length > 0) groupedBlocks.push(tempFeatureGroup)
+
+  const renderBlock = (block: PageBlock | FeatureLayoutBlock[], index: number) => {
+    const wrapperClasses =
+      'w-full opacity-0 translate-y-10 animate-restroworks-fade-up motion-reduce:translate-y-0 motion-reduce:opacity-100'
+    const animationDelay = { animationDelay: `${index * 120}ms` }
+
+    if (Array.isArray(block)) {
+      return (
+        <section key={`features-${index}`} className="w-full bg-[#f9fafb] py-16">
+          <div className="mx-auto grid w-full max-w-6xl grid-cols-1 gap-8 px-6 sm:grid-cols-2 xl:grid-cols-3">
+            {block.map((feature, i) => (
+              <FeatureBlock key={`feature-${index}-${i}`} block={feature} locale={locale} />
+            ))}
+          </div>
+        </section>
+      )
+    }
+
+    // ✅ Handle single blocks
+    switch (block?.blockType) {
+      case 'hero':
+        return (
+          <div key={`hero-${index}`} className={wrapperClasses} style={animationDelay}>
+            <HeroBlock block={block as HeroLayoutBlock} locale={locale} />
+          </div>
+        )
+      case 'testimonial':
+        return (
+          <div key={`testimonial-${index}`} className={wrapperClasses} style={animationDelay}>
+            <TestimonialBlock block={block as TestimonialLayoutBlock} />
+          </div>
+        )
+      case 'cta':
+        return (
+          <div key={`cta-${index}`} className={wrapperClasses} style={animationDelay}>
+            <CTABlock block={block as CtaLayoutBlock} locale={locale} />
+          </div>
+        )
+      default:
+        return (
+          <section
+            key={`unsupported-${index}`}
+            className="w-full rounded-2xl bg-gray-100/80 p-10 text-center text-gray-700"
+          >
+            <h2 className="text-xl font-semibold text-gray-900">Unsupported block</h2>
+            <p className="mt-2 text-gray-600">
+              This block type is not yet handled. Please update the frontend to support it.
+            </p>
+          </section>
+        )
+    }
+  }
+
   return (
     <main className="mx-auto w-full max-w-6xl px-6 py-20 md:py-24">
       <header className="mb-20 text-center">
@@ -136,8 +161,8 @@ export default async function HomePage({ params }: { params: { locale?: string }
       </header>
 
       <div className="flex flex-col gap-20">
-        {blocks.length > 0 ? (
-          blocks.map((block, index) => renderBlock(block, index, locale))
+        {groupedBlocks.length > 0 ? (
+          groupedBlocks.map((block, index) => renderBlock(block, index))
         ) : (
           <section className="w-full rounded-2xl bg-gray-100/80 p-10 text-center text-gray-700">
             <h2 className="text-xl font-semibold text-gray-900">{t.homepage.noContentTitle}</h2>

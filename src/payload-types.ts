@@ -223,6 +223,8 @@ export interface User {
   password?: string | null;
 }
 /**
+ * Define dynamic, localized page content and SEO metadata.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "pages".
  */
@@ -230,56 +232,61 @@ export interface Page {
   id: string;
   title: string;
   /**
-   * Used in page URL
+   * Used for page URL (e.g., "home", "contact")
    */
   slug: string;
-  layout?:
-    | (
-        | {
-            heading: string;
-            subheading?: string | null;
-            backgroundImage?: (string | null) | Media;
-            ctaText?: string | null;
-            ctaLink?: string | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'hero';
-          }
-        | {
-            title: string;
-            description?: string | null;
-            icon?: (string | null) | Media;
-            linkLabel?: string | null;
-            linkUrl?: string | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'feature';
-          }
-        | {
-            quote: string;
-            authorName: string;
-            authorTitle?: string | null;
-            authorImage?: (string | null) | Media;
-            rating?: number | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'testimonial';
-          }
-        | {
-            heading: string;
-            description?: string | null;
-            buttonText?: string | null;
-            buttonLink?: string | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'cta';
-          }
-      )[]
-    | null;
+  layout: (
+    | {
+        heading: string;
+        subheading?: string | null;
+        backgroundImage?: (string | null) | Media;
+        ctaText?: string | null;
+        ctaLink?: string | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'hero';
+      }
+    | {
+        title: string;
+        description?: string | null;
+        icon?: (string | null) | Media;
+        linkLabel?: string | null;
+        linkUrl?: string | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'feature';
+      }
+    | {
+        quote: string;
+        authorName: string;
+        authorTitle?: string | null;
+        authorImage?: (string | null) | Media;
+        rating?: number | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'testimonial';
+      }
+    | {
+        heading: string;
+        description?: string | null;
+        buttonText?: string | null;
+        buttonLink?: string | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'cta';
+      }
+  )[];
+  /**
+   * Appears as the browser tab title and search engine title (max 60 chars)
+   */
   seoTitle?: string | null;
+  /**
+   * Appears as the meta description in search results (max 160 chars)
+   */
   seoDescription?: string | null;
   updatedAt: string;
   createdAt: string;
+  _status?: ('draft' | 'published') | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -476,6 +483,7 @@ export interface PagesSelect<T extends boolean = true> {
   seoDescription?: T;
   updatedAt?: T;
   createdAt?: T;
+  _status?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

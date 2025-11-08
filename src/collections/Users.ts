@@ -5,7 +5,7 @@ const isAdminUser = (user: unknown): user is { admin?: boolean } =>
 
 const hasAdminAccess = (user: unknown): boolean => isAdminUser(user) && Boolean(user.admin)
 
-export const Users: CollectionConfig = {
+export const Users: CollectionConfig<'users'> = {
   slug: 'users',
   auth: true,
   admin: {

@@ -1,9 +1,10 @@
 // storage-adapter-import-placeholder
 import { mongooseAdapter } from '@payloadcms/db-mongodb'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
-import path from 'path'
+import path from 'node:path'
 import { buildConfig } from 'payload'
-import { fileURLToPath } from 'url'
+import type { CollectionSlug } from 'payload'
+import { fileURLToPath } from 'node:url'
 import sharp from 'sharp'
 
 import { Users } from './collections/Users'
@@ -20,6 +21,20 @@ export const blocks = [Hero, Feature, Testimonial, CTA]
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 
+const usersCollectionSlug = Users.slug as CollectionSlug
+
+const enableAdminAutoLogin = process.env.PAYLOAD_ENABLE_ADMIN_AUTOLOGIN === 'true'
+const adminAutoLoginEmail = process.env.PAYLOAD_ADMIN_AUTOLOGIN_EMAIL
+const adminAutoLoginPassword = process.env.PAYLOAD_ADMIN_AUTOLOGIN_PASSWORD
+
+const adminAutoLoginCredentials =
+  enableAdminAutoLogin && adminAutoLoginEmail && adminAutoLoginPassword
+    ? {
+        email: adminAutoLoginEmail,
+        password: adminAutoLoginPassword,
+      }
+    : undefined
+
 export default buildConfig({
   serverURL: process.env.PAYLOAD_URL || 'http://localhost:3000',
   admin: {
@@ -27,6 +42,11 @@ export default buildConfig({
     importMap: {
       baseDir: path.resolve(dirname),
     },
+    ...(adminAutoLoginCredentials
+      ? {
+          autoLogin: adminAutoLoginCredentials,
+        }
+      : {}),
   },
   blocks,
   collections: [Users, Media, Pages, Contacts],
@@ -46,5 +66,31 @@ export default buildConfig({
     locales: ['en', 'hi'],
     defaultLocale: 'en',
     fallback: true,
+  },
+  onInit: async (payload) => {
+    if (!adminAutoLoginCredentials) {
+      return
+    }
+
+    const existingAdminUser = await payload.find({
+      collection: usersCollectionSlug,
+      limit: 1,
+      where: {
+        email: {
+          equals: adminAutoLoginCredentials.email,
+        },
+      },
+    })
+
+    if (existingAdminUser.totalDocs === 0) {
+      await payload.create({
+        collection: usersCollectionSlug,
+        data: {
+          email: adminAutoLoginCredentials.email,
+          password: adminAutoLoginCredentials.password,
+          admin: true,
+        },
+      })
+    }
   },
 })

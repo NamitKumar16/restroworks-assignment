@@ -13,9 +13,32 @@ type HeroBlockProps = {
     ctaText?: string
     ctaLink?: string
   }
+  locale?: string
 }
 
-const HeroBlock: FC<HeroBlockProps> = ({ block }) => {
+const withLocalePrefix = (locale: string | undefined, href?: string) => {
+  if (!href) return undefined
+  if (
+    href.startsWith('http://') ||
+    href.startsWith('https://') ||
+    href.startsWith('mailto:') ||
+    href.startsWith('tel:')
+  )
+    return href
+
+  const normalized = href.startsWith('/') ? href : `/${href}`
+  if (!locale) return normalized
+
+  const sanitizedLocale = locale.trim()
+  if (!sanitizedLocale) return normalized
+  if (normalized === `/${sanitizedLocale}` || normalized.startsWith(`/${sanitizedLocale}/`)) {
+    return normalized
+  }
+
+  return `/${sanitizedLocale}${normalized}`
+}
+
+const HeroBlock: FC<HeroBlockProps> = ({ block, locale }) => {
   const [isVisible, setIsVisible] = useState(false)
 
   useEffect(() => {
@@ -35,7 +58,8 @@ const HeroBlock: FC<HeroBlockProps> = ({ block }) => {
   }, [block.backgroundImage?.url])
 
   const hasBackground = Boolean(block.backgroundImage?.url)
-  const hasCta = block.ctaText && block.ctaLink
+  const resolvedCtaLink = withLocalePrefix(locale, block.ctaLink)
+  const hasCta = Boolean(block.ctaText && resolvedCtaLink)
 
   return (
     <section className="relative isolate w-full overflow-hidden">
@@ -62,9 +86,9 @@ const HeroBlock: FC<HeroBlockProps> = ({ block }) => {
           </p>
         )}
 
-        {hasCta && (
+        {hasCta && resolvedCtaLink && (
           <a
-            href={block.ctaLink}
+            href={resolvedCtaLink}
             className="mt-10 inline-flex items-center justify-center rounded-xl bg-linear-to-r from-indigo-500 to-violet-500 px-10 py-3 text-base font-semibold text-white shadow-lg transition-all duration-300 ease-out hover:scale-105 hover:shadow-[0_15px_40px_-15px_rgba(139,92,246,0.7)] focus:outline-none focus:ring-2 focus:ring-indigo-200 focus:ring-offset-2 focus:ring-offset-transparent"
           >
             {block.ctaText}

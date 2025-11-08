@@ -12,6 +12,7 @@ const nextConfig = {
 
     return webpackConfig
   },
+  reactStrictMode: true,
 }
 
 export default withPayload(nextConfig, { devBundleServerPackages: false })

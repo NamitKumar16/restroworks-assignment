@@ -13,10 +13,30 @@ type FeatureBlockProps = {
     linkLabel?: string
     linkUrl?: string
   }
+  locale?: string
 }
 
-const FeatureBlock: FC<FeatureBlockProps> = ({ block }) => {
-  const showLink = Boolean(block.linkLabel && block.linkUrl)
+const withLocalePrefix = (locale: string | undefined, href?: string) => {
+  if (!href) return undefined
+  if (href.startsWith('http://') || href.startsWith('https://') || href.startsWith('mailto:') || href.startsWith('tel:'))
+    return href
+
+  const normalized = href.startsWith('/') ? href : `/${href}`
+  if (!locale) return normalized
+
+  const sanitizedLocale = locale.trim()
+  if (!sanitizedLocale) return normalized
+
+  if (normalized === `/${sanitizedLocale}` || normalized.startsWith(`/${sanitizedLocale}/`)) {
+    return normalized
+  }
+
+  return `/${sanitizedLocale}${normalized}`
+}
+
+const FeatureBlock: FC<FeatureBlockProps> = ({ block, locale }) => {
+  const resolvedLink = withLocalePrefix(locale, block.linkUrl)
+  const showLink = Boolean(block.linkLabel && resolvedLink)
 
   return (
     <section className="w-full bg-[#f9fafb] py-16">
@@ -41,9 +61,9 @@ const FeatureBlock: FC<FeatureBlockProps> = ({ block }) => {
 
             {block.description && <p className="text-gray-600">{block.description}</p>}
 
-            {showLink && (
+            {showLink && resolvedLink && (
               <a
-                href={block.linkUrl}
+                href={resolvedLink}
                 className="inline-flex w-fit items-center gap-2 rounded-xl bg-linear-to-r from-indigo-500 to-violet-500 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-all duration-200 ease-in-out hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-indigo-200 focus:ring-offset-2 focus:ring-offset-white"
               >
                 {block.linkLabel}

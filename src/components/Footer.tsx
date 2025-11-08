@@ -1,7 +1,15 @@
 import Link from 'next/link'
 
-const Footer = () => {
+type FooterProps = {
+  locale?: string
+}
+
+const Footer = ({ locale = 'en' }: FooterProps) => {
   const currentYear = new Date().getFullYear()
+  const sanitizedLocale = locale?.trim() ?? ''
+  const localePrefix = sanitizedLocale ? `/${sanitizedLocale}` : ''
+  const homeHref = localePrefix || '/'
+  const contactHref = `${localePrefix}/contact`
 
   return (
     <footer className="relative mt-16 bg-white">
@@ -17,13 +25,13 @@ const Footer = () => {
 
         <nav className="flex justify-center gap-6 text-sm font-medium text-gray-600 sm:justify-end">
           <Link
-            href="/"
+            href={homeHref}
             className="transition-colors duration-200 hover:text-indigo-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 focus-visible:ring-offset-2 focus-visible:ring-offset-white"
           >
             Home
           </Link>
           <Link
-            href="/contact"
+            href={contactHref}
             className="transition-colors duration-200 hover:text-indigo-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 focus-visible:ring-offset-2 focus-visible:ring-offset-white"
           >
             Contact

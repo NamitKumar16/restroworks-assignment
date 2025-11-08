@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import type { CSSProperties, FC } from 'react'
 import { useEffect, useMemo, useState } from 'react'
 
@@ -8,8 +9,8 @@ type HeroBlockProps = {
     heading?: string
     subheading?: string
     backgroundImage?: {
-      url?: string
-    }
+      url?: string | null
+    } | string | null
     ctaText?: string
     ctaLink?: string
   }
@@ -38,6 +39,26 @@ const withLocalePrefix = (locale: string | undefined, href?: string) => {
   return `/${sanitizedLocale}${normalized}`
 }
 
+const resolveMediaUrl = (media: HeroBlockProps['block']['backgroundImage']): string | undefined => {
+  if (!media) return undefined
+
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? ''
+
+  if (typeof media === 'string') {
+    if (media.startsWith('http://') || media.startsWith('https://')) return media
+    if (media.startsWith('/')) return `${baseUrl}${media}`
+    return `${baseUrl}/media/${media}`
+  }
+
+  if (media.url) {
+    if (media.url.startsWith('http://') || media.url.startsWith('https://')) return media.url
+    if (media.url.startsWith('/')) return `${baseUrl}${media.url}`
+    return `${baseUrl}/${media.url}`
+  }
+
+  return undefined
+}
+
 const HeroBlock: FC<HeroBlockProps> = ({ block, locale }) => {
   const [isVisible, setIsVisible] = useState(false)
 
@@ -46,23 +67,37 @@ const HeroBlock: FC<HeroBlockProps> = ({ block, locale }) => {
     return () => globalThis.clearTimeout(timeout)
   }, [])
 
-  const backgroundStyles = useMemo<CSSProperties | undefined>(() => {
-    const url = block.backgroundImage?.url
-    if (!url) return undefined
+  const backgroundUrl = useMemo(() => {
+    const resolved = resolveMediaUrl(block.backgroundImage)
+    return resolved ? encodeURI(resolved) : undefined
+  }, [block.backgroundImage])
 
+  const backgroundStyles = useMemo<CSSProperties | undefined>(() => {
+    if (!backgroundUrl) return undefined
     return {
-      backgroundImage: `url(${url})`,
+      backgroundImage: `url("${backgroundUrl}")`,
       backgroundSize: 'cover',
       backgroundPosition: 'center',
     }
-  }, [block.backgroundImage?.url])
+  }, [backgroundUrl])
 
-  const hasBackground = Boolean(block.backgroundImage?.url)
+  const hasBackground = Boolean(backgroundUrl)
   const resolvedCtaLink = withLocalePrefix(locale, block.ctaLink)
   const hasCta = Boolean(block.ctaText && resolvedCtaLink)
 
   return (
     <section className="relative isolate w-full overflow-hidden">
+      {backgroundUrl && (
+        <Image
+          src={backgroundUrl}
+          alt={block.heading ?? 'Hero background'}
+          width={1600}
+          height={900}
+          priority
+          sizes="(max-width: 768px) 100vw, 1600px"
+          className="sr-only"
+        />
+      )}
       <div
         style={backgroundStyles}
         className={`absolute inset-0 h-full w-full ${hasBackground ? '' : 'bg-linear-to-br from-indigo-900 via-indigo-800 to-violet-900'}`}

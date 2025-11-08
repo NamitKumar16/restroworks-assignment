@@ -6,15 +6,69 @@ import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 import { translations, SupportedLocale, DEFAULT_LOCALE, isSupportedLocale } from '@/lib/i18n'
 
+export async function generateMetadata({ params }: { params: Promise<{ locale?: string }> }) {
+  const { locale: localeParam } = await params
+  const locale: PayloadLocale = isSupportedLocale(localeParam) ? localeParam : DEFAULT_LOCALE
+  const payload = await getPayload({ config: configPromise })
+
+  const result = await payload.find({
+    collection: 'pages',
+    where: { slug: { equals: 'home-page' } },
+    locale,
+    limit: 1,
+    depth: 2,
+  })
+
+  const page = result?.docs?.[0] ?? null
+
+  const title = page?.seoTitle ?? page?.title ?? 'Restroworks'
+  const description =
+    page?.seoDescription ?? 'Crafting delightful restaurant experiences with modern technology.'
+
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? 'http://localhost:3000'
+  const pageUrl = `${baseUrl}/${locale}`
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      url: pageUrl,
+      siteName: 'Restroworks',
+      images: [
+        {
+          url: `${baseUrl}/og-image.png`, // create an OG image in public/
+          width: 1200,
+          height: 630,
+          alt: title,
+        },
+      ],
+      locale,
+      type: 'website',
+    },
+    alternates: {
+      canonical: pageUrl,
+      languages: {
+        en: `${baseUrl}/en`,
+        hi: `${baseUrl}/hi`,
+      },
+    },
+  }
+}
+
 export const dynamic = 'force-dynamic'
+export const revalidate = 3600
 
 type HeroLayoutBlock = {
   blockType: 'hero'
   heading?: string
   subheading?: string
-  backgroundImage?: {
-    url?: string
-  }
+  backgroundImage?:
+    | string
+    | {
+        url?: string | null
+      }
   ctaText?: string
   ctaLink?: string
 }
@@ -68,6 +122,7 @@ const fetchHomePage = async (locale: PayloadLocale): Promise<PageDocument | null
       collection: 'pages',
       where: { slug: { equals: 'home-page' } },
       locale,
+      depth: 2,
     })
     return (result?.docs?.[0] as PageDocument | undefined) ?? null
   } catch (error) {
@@ -76,8 +131,8 @@ const fetchHomePage = async (locale: PayloadLocale): Promise<PageDocument | null
   }
 }
 
-export default async function HomePage({ params }: { params: { locale?: string } }) {
-  const localeParam = params?.locale
+export default async function HomePage({ params }: { params: Promise<{ locale?: string }> }) {
+  const { locale: localeParam } = await params
   const locale: SupportedLocale = isSupportedLocale(localeParam) ? localeParam : DEFAULT_LOCALE
   const page = await fetchHomePage(locale)
   const blocks = page?.layout ?? []

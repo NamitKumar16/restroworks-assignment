@@ -4,6 +4,7 @@ import HeroBlock from '@/components/blocks/HeroBlock'
 import TestimonialBlock from '@/components/blocks/TestimonialBlock'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
+import { translations, SupportedLocale, DEFAULT_LOCALE, isSupportedLocale } from '@/lib/i18n'
 
 export const dynamic = 'force-dynamic'
 
@@ -62,26 +63,25 @@ type PageDocument = {
   layout?: PageBlock[]
 }
 
-const fetchHomePage = async (): Promise<PageDocument | null> => {
+type PayloadLocale = SupportedLocale | 'all'
+
+const fetchHomePage = async (locale: PayloadLocale): Promise<PageDocument | null> => {
   try {
     const payload = await getPayload({ config: configPromise })
-    const result = (await payload.find({
+    const result = await payload.find({
       collection: 'pages',
-      where: {
-        slug: {
-          equals: 'home',
-        },
-      },
-    })) as { docs?: PageDocument[] }
+      where: { slug: { equals: 'home' } },
+      locale,
+    })
 
-    return result?.docs?.[0] ?? null
+    return (result?.docs?.[0] as PageDocument | undefined) ?? null
   } catch (error) {
-    console.error('Error fetching home page data:', error)
+    console.error(`Error fetching home page for locale "${locale}":`, error)
     return null
   }
 }
 
-const renderBlock = (block: PageBlock, index: number, locale: string) => {
+const renderBlock = (block: PageBlock, index: number, locale: SupportedLocale) => {
   const key = `${block?.blockType ?? 'unknown'}-${index}`
   const wrapperClasses =
     'w-full opacity-0 translate-y-10 animate-restroworks-fade-up motion-reduce:translate-y-0 motion-reduce:opacity-100'
@@ -121,18 +121,18 @@ const renderBlock = (block: PageBlock, index: number, locale: string) => {
   )
 }
 
-export default async function HomePage({ params }: { params: Promise<{ locale?: string }> }) {
-  const { locale = 'en' } = await params
-  const page = await fetchHomePage()
+export default async function HomePage({ params }: { params: { locale?: string } }) {
+  const localeParam = params?.locale
+  const locale: SupportedLocale = isSupportedLocale(localeParam) ? localeParam : DEFAULT_LOCALE
+  const page = await fetchHomePage(locale)
   const blocks = page?.layout ?? []
+  const t = translations[locale]
 
   return (
     <main className="mx-auto w-full max-w-6xl px-6 py-20 md:py-24">
       <header className="mb-20 text-center">
-        <h1 className="text-4xl font-semibold text-gray-900 md:text-5xl">Welcome to Restroworks</h1>
-        <p className="mt-4 text-lg text-gray-600 md:text-xl">
-          Crafting delightful restaurant experiences with modern technology.
-        </p>
+        <h1 className="text-4xl font-semibold text-gray-900 md:text-5xl">{t.homepage.title}</h1>
+        <p className="mt-4 text-lg text-gray-600 md:text-xl">{t.homepage.subtitle}</p>
       </header>
 
       <div className="flex flex-col gap-20">
@@ -140,10 +140,8 @@ export default async function HomePage({ params }: { params: Promise<{ locale?: 
           blocks.map((block, index) => renderBlock(block, index, locale))
         ) : (
           <section className="w-full rounded-2xl bg-gray-100/80 p-10 text-center text-gray-700">
-            <h2 className="text-xl font-semibold text-gray-900">No content yet</h2>
-            <p className="mt-2 text-gray-600">
-              Publish blocks for the home page in the Payload admin panel to see them here.
-            </p>
+            <h2 className="text-xl font-semibold text-gray-900">{t.homepage.noContentTitle}</h2>
+            <p className="mt-2 text-gray-600">{t.homepage.noContentMessage}</p>
           </section>
         )}
       </div>

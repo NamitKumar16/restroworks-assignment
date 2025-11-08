@@ -17,6 +17,7 @@ const CTA: Block = {
     {
       name: 'buttonText',
       type: 'text',
+      localized: true,
     },
     {
       name: 'buttonLink',

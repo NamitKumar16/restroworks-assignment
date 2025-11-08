@@ -3,14 +3,19 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useEffect, useMemo, useState } from 'react'
+import { translations, DEFAULT_LOCALE, isSupportedLocale } from '@/lib/i18n'
 
 type HeaderProps = {
   locale?: string
 }
 
-const Header = ({ locale = 'en' }: HeaderProps) => {
+const Header = ({ locale = DEFAULT_LOCALE }: HeaderProps) => {
   const [isScrolled, setIsScrolled] = useState(false)
   const pathname = usePathname()
+
+  const sanitizedLocale = locale?.trim() ?? ''
+  const resolvedLocale = isSupportedLocale(sanitizedLocale) ? sanitizedLocale : DEFAULT_LOCALE
+  const t = translations[resolvedLocale]
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(globalThis.scrollY > 10)
@@ -19,8 +24,7 @@ const Header = ({ locale = 'en' }: HeaderProps) => {
   }, [])
 
   const { homeHref, contactHref, isHomeActive, isContactActive } = useMemo(() => {
-    const sanitizedLocale = locale?.trim() ?? ''
-    const localePrefix = sanitizedLocale ? `/${sanitizedLocale}` : ''
+    const localePrefix = isSupportedLocale(sanitizedLocale) ? `/${sanitizedLocale}` : ''
     const home = localePrefix || '/'
     const contact = `${localePrefix}/contact`
 
@@ -35,7 +39,9 @@ const Header = ({ locale = 'en' }: HeaderProps) => {
       isHomeActive: current === homeNormalized,
       isContactActive: current === contactNormalized,
     }
-  }, [locale, pathname])
+  }, [sanitizedLocale, pathname])
+
+  const toggleLocale = resolvedLocale === 'en' ? 'hi' : 'en'
 
   return (
     <header
@@ -45,7 +51,7 @@ const Header = ({ locale = 'en' }: HeaderProps) => {
     >
       <nav className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
         <Link href={homeHref} className="text-xl font-semibold text-indigo-600">
-          Restroworks
+          {t.header.brand}
         </Link>
 
         <div className="flex items-center gap-6">
@@ -55,7 +61,7 @@ const Header = ({ locale = 'en' }: HeaderProps) => {
               isHomeActive ? 'text-indigo-600 font-semibold' : 'text-gray-700 hover:text-indigo-600'
             }`}
           >
-            Home
+            {t.header.home}
           </Link>
 
           <Link
@@ -66,9 +72,15 @@ const Header = ({ locale = 'en' }: HeaderProps) => {
                 : 'bg-linear-to-r from-indigo-500 to-violet-500 text-white hover:opacity-90'
             }`}
           >
-            Contact
+            {t.header.contact}
           </Link>
         </div>
+        <Link
+          href={`/${toggleLocale}`}
+          className="rounded-md border border-indigo-300 px-3 py-1 text-sm text-indigo-600 hover:bg-indigo-50"
+        >
+          {resolvedLocale === 'en' ? 'हिन्दी' : 'English'}
+        </Link>
       </nav>
     </header>
   )

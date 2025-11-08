@@ -17,6 +17,7 @@ const Testimonial: Block = {
     {
       name: 'authorTitle',
       type: 'text',
+      localized: true,
     },
     {
       name: 'authorImage',

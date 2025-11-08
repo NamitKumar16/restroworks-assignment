@@ -3,11 +3,11 @@ import Header from '@/components/Header'
 
 type LocaleLayoutProps = {
   children: React.ReactNode
-  params: Promise<{ locale?: string }>
+  params: { locale?: string }
 }
 
-export default async function LocaleLayout({ children, params }: LocaleLayoutProps) {
-  const { locale = 'en' } = await params
+export default function LocaleLayout({ children, params }: LocaleLayoutProps) {
+  const locale = params?.locale || 'en'
 
   return (
     <div className="flex min-h-screen flex-col">

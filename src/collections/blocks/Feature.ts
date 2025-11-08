@@ -22,6 +22,7 @@ const Feature: Block = {
     {
       name: 'linkLabel',
       type: 'text',
+      localized: true,
     },
     {
       name: 'linkUrl',

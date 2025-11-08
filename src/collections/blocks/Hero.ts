@@ -22,6 +22,7 @@ const Hero: Block = {
     {
       name: 'ctaText',
       type: 'text',
+      localized: true,
     },
     {
       name: 'ctaLink',

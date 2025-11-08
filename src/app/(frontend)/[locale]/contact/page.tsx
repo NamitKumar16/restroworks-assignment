@@ -1,6 +1,7 @@
 'use client'
 
-import { FormEvent, useState } from 'react'
+import React, { ChangeEvent, FormEvent, useState } from 'react'
+import { translations, SupportedLocale } from '@/lib/i18n'
 
 type ContactFormData = {
   name: string
@@ -18,7 +19,16 @@ const initialFormData: ContactFormData = {
   honeypot: '',
 }
 
-const ContactPage = () => {
+type ContactPageProps = {
+  params: Promise<{
+    locale?: string
+  }>
+}
+
+const ContactPage = ({ params }: ContactPageProps) => {
+  const resolvedParams = React.use(params)
+  const locale = resolvedParams?.locale ?? 'en'
+  const t = translations[locale as SupportedLocale] ?? translations.en
   const [formData, setFormData] = useState<ContactFormData>(initialFormData)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -26,7 +36,7 @@ const ContactPage = () => {
 
   const handleChange =
     (field: keyof ContactFormData) =>
-    (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       setFormData((prev) => ({
         ...prev,
         [field]: event.target.value,
@@ -39,7 +49,7 @@ const ContactPage = () => {
     setSuccess(null)
 
     if (!formData.name.trim() || !formData.email.trim() || !formData.message.trim()) {
-      setError('Please fill in all required fields.')
+      setError(t.contact.requiredFields)
       return
     }
 
@@ -56,16 +66,16 @@ const ContactPage = () => {
 
       if (!response.ok) {
         const { message } = await response.json()
-        throw new Error(message || 'Failed to send message.')
+        throw new Error(message || t.contact.error)
       }
 
-      setSuccess('Thanks for reaching out! We will get back to you soon.')
+      setSuccess(t.contact.success)
       setFormData(initialFormData)
     } catch (submitError) {
       setError(
         submitError instanceof Error
           ? submitError.message
-          : 'Something went wrong. Please try again.',
+          : t.contact.error,
       )
     } finally {
       setIsSubmitting(false)
@@ -75,15 +85,14 @@ const ContactPage = () => {
   return (
     <section className="mt-12 px-6">
       <div className="mx-auto max-w-2xl rounded-2xl bg-white p-8 shadow-md">
-        <h1 className="text-center text-3xl font-semibold text-gray-900">Get in Touch</h1>
-        <p className="mt-3 text-center text-gray-600">
-          We would love to hear about your project or answer any questions you may have.
-        </p>
+        <h1 className="text-center text-3xl font-semibold text-gray-900">{t.contact.title}</h1>
+        <p className="mt-3 text-center text-gray-600">{t.contact.description}</p>
 
         <form className="mt-8 space-y-5" onSubmit={handleSubmit}>
           <div>
             <label className="block text-sm font-semibold text-gray-800" htmlFor="name">
-              Name<span className="text-red-500">*</span>
+              {t.contact.name}
+              <span className="text-red-500">*</span>
             </label>
             <input
               id="name"
@@ -92,13 +101,14 @@ const ContactPage = () => {
               value={formData.name}
               onChange={handleChange('name')}
               className="mt-2 w-full rounded-lg border border-gray-200 p-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              placeholder="Your name"
+              placeholder={t.contact.namePlaceholder}
             />
           </div>
 
           <div>
             <label className="block text-sm font-semibold text-gray-800" htmlFor="email">
-              Email<span className="text-red-500">*</span>
+              {t.contact.email}
+              <span className="text-red-500">*</span>
             </label>
             <input
               id="email"
@@ -107,13 +117,13 @@ const ContactPage = () => {
               value={formData.email}
               onChange={handleChange('email')}
               className="mt-2 w-full rounded-lg border border-gray-200 p-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              placeholder="you@example.com"
+              placeholder={t.contact.emailPlaceholder}
             />
           </div>
 
           <div>
             <label className="block text-sm font-semibold text-gray-800" htmlFor="subject">
-              Subject
+              {t.contact.subject}
             </label>
             <input
               id="subject"
@@ -122,13 +132,14 @@ const ContactPage = () => {
               value={formData.subject}
               onChange={handleChange('subject')}
               className="mt-2 w-full rounded-lg border border-gray-200 p-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              placeholder="How can we help?"
+              placeholder={t.contact.subjectPlaceholder}
             />
           </div>
 
           <div>
             <label className="block text-sm font-semibold text-gray-800" htmlFor="message">
-              Message<span className="text-red-500">*</span>
+              {t.contact.message}
+              <span className="text-red-500">*</span>
             </label>
             <textarea
               id="message"
@@ -137,13 +148,13 @@ const ContactPage = () => {
               value={formData.message}
               onChange={handleChange('message')}
               className="mt-2 w-full rounded-lg border border-gray-200 p-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              placeholder="Tell us about your project or inquiry..."
+              placeholder={t.contact.messagePlaceholder}
             />
           </div>
 
           <div className="hidden">
             <label className="block text-sm font-semibold text-gray-800" htmlFor="honeypot">
-              Leave this field blank
+              {t.contact.honeypotLabel}
             </label>
             <input
               id="honeypot"
@@ -161,7 +172,7 @@ const ContactPage = () => {
             disabled={isSubmitting}
             className="w-full rounded-xl bg-linear-to-r from-indigo-500 to-violet-500 py-3 px-6 font-semibold text-white shadow-sm transition-all duration-200 ease-in-out hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-70"
           >
-            {isSubmitting ? 'Sending...' : 'Send Message'}
+            {isSubmitting ? t.contact.sending : t.contact.send}
           </button>
         </form>
 

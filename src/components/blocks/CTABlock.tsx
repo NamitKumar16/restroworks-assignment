@@ -5,7 +5,7 @@ import type { FC } from 'react'
 type CTABlockProps = {
   block: {
     heading?: string
-    subheading?: string
+    description?: string
     buttonText?: string
     buttonLink?: string
   }
@@ -14,7 +14,12 @@ type CTABlockProps = {
 
 const withLocalePrefix = (locale: string | undefined, href?: string) => {
   if (!href) return undefined
-  if (href.startsWith('http://') || href.startsWith('https://') || href.startsWith('mailto:') || href.startsWith('tel:'))
+  if (
+    href.startsWith('http://') ||
+    href.startsWith('https://') ||
+    href.startsWith('mailto:') ||
+    href.startsWith('tel:')
+  )
     return href
 
   const normalized = href.startsWith('/') ? href : `/${href}`
@@ -31,7 +36,7 @@ const withLocalePrefix = (locale: string | undefined, href?: string) => {
 }
 
 const CTABlock: FC<CTABlockProps> = ({ block, locale }) => {
-  const { heading, subheading, buttonText, buttonLink } = block
+  const { heading, description, buttonText, buttonLink } = block
   const resolvedLink = withLocalePrefix(locale, buttonLink)
 
   return (
@@ -40,7 +45,7 @@ const CTABlock: FC<CTABlockProps> = ({ block, locale }) => {
 
       <div className="relative z-10 mx-auto flex max-w-2xl flex-col items-center gap-6 text-center">
         {heading && <h2 className="text-3xl font-semibold sm:text-4xl">{heading}</h2>}
-        {subheading && <p className="text-base text-white/90 sm:text-lg">{subheading}</p>}
+        {description && <p className="text-base text-white/90 sm:text-lg">{description}</p>}
 
         {buttonText && resolvedLink && (
           <a

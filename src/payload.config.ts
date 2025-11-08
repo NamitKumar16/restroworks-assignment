@@ -41,4 +41,9 @@ export default buildConfig({
   plugins: [
     // storage-adapter-placeholder
   ],
+  localization: {
+    locales: ['en', 'hi'],
+    defaultLocale: 'en',
+    fallback: true,
+  },
 })

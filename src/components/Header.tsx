@@ -1,10 +1,12 @@
 'use client'
 
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false)
+  const pathname = usePathname()
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 10)
@@ -28,13 +30,22 @@ const Header = () => {
         <div className="flex items-center gap-6">
           <Link
             href="/"
-            className="text-gray-700 transition-all duration-200 hover:text-indigo-600"
+            className={`transition-all duration-200 ${
+              pathname === '/'
+                ? 'text-indigo-600 font-semibold'
+                : 'text-gray-700 hover:text-indigo-600'
+            }`}
           >
             Home
           </Link>
+
           <Link
             href="/contact"
-            className="rounded-xl bg-linear-to-r from-indigo-500 to-violet-500 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:opacity-90"
+            className={`rounded-xl px-4 py-2 text-sm font-semibold shadow-sm transition-all duration-200 ${
+              pathname === '/contact'
+                ? 'bg-linear-to-r from-indigo-600 to-violet-600 text-white'
+                : 'bg-linear-to-r from-indigo-500 to-violet-500 text-white hover:opacity-90'
+            }`}
           >
             Contact
           </Link>
